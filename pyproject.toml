@@ -1,0 +1,14 @@
+[project]
+name = "philo-chat-app"
+version = "0.1.0"
+description = "Chat with your favorite philosophers - Nietzsche, Socrates, and more!"
+authors = [{ name = "Erfan Moosavi", email = "erfanmoosavi84@gmail.com" }]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]==0.129.0",
+    "openai>=2.21.0",
+    "pydantic>=2.12.5",
+    "pyyaml>=6.0.3",
+]

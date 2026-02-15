@@ -21,18 +21,18 @@ class User:
 
     def new_chat(self, chat_name: str, philosopher: Philosopher) -> None:
         if self._find_chat(chat_name):
-            raise BadRequestError("Chat already exists")
+            raise BadRequestError(f"Chat '{chat_name}' already exists")
 
         new_chat = Chat(chat_name, philosopher)
         self.chats[chat_name] = new_chat
 
     def rename_chat(self, old_chat_name: str, new_chat_name: str) -> None:
         if self._find_chat(new_chat_name):
-            raise BadRequestError("Chat name already exists")
+            raise BadRequestError(f"Chat '{new_chat_name}' already exists")
 
         chat = self._find_chat(old_chat_name)
         if not chat:
-            raise NotFoundError("Chat not found")
+            raise NotFoundError(f"Chat '{old_chat_name}' not found")
 
         chat.rename_chat(new_chat_name)
 
@@ -45,7 +45,7 @@ class User:
     def delete_chat(self, chat_name: str) -> None:
         chat = self._find_chat(chat_name)
         if not chat:
-            raise NotFoundError("Chat not found")
+            raise NotFoundError(f"Chat '{chat_name}' not found")
 
         del self.chats[chat_name]
 

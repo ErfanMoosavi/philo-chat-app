@@ -13,7 +13,7 @@ class PhiloChat:
 
     def signup(self, username: str, password: str) -> None:
         if self._find_user(username):
-            raise BadRequestError(f"Username {username} already taken")
+            raise BadRequestError(f"Username '{username}' already taken")
 
         new_user = User(username, password)
         self.users[username] = new_user
@@ -22,32 +22,32 @@ class PhiloChat:
         user = self._find_user(username)
 
         if not user:
-            raise NotFoundError("Username not found")
+            raise NotFoundError(f"Username '{username}' not found")
         elif user.password != password:
-            raise PermissionDeniedError("Wrong password")
+            raise PermissionDeniedError("Password is incorrect")
 
     def logout(self, username: str) -> None:
         user = self._find_user(username)
         if not user:
-            raise NotFoundError("Username not found")
+            raise NotFoundError(f"Username '{username}' not found")
 
     def delete_account(self, username: str) -> None:
         if username not in self.users:
-            raise NotFoundError(f"User {username} not found")
+            raise NotFoundError(f"Username '{username}' not found")
 
         del self.users[username]
 
     def set_name(self, username: str, name: str) -> None:
         user = self._find_user(username)
         if not user:
-            raise NotFoundError(f"User {username} not found")
+            raise NotFoundError(f"Username '{username}' not found")
 
         user.set_name(name)
 
     def set_age(self, username: str, age: int) -> None:
         user = self._find_user(username)
         if not user:
-            raise NotFoundError(f"User {username} not found")
+            raise NotFoundError(f"Username '{username}' not found")
 
         user.set_age(age)
 
@@ -56,9 +56,9 @@ class PhiloChat:
         philosopher = self._find_philosopher(philosopher_id)
 
         if not user:
-            raise NotFoundError(f"User {username} not found")
+            raise NotFoundError(f"Username '{username}' not found")
         if not philosopher:
-            raise NotFoundError(f"Philosopher with id {philosopher_id} not found")
+            raise NotFoundError(f"Philosopher with id '{philosopher_id}' not found")
 
         user.new_chat(chat_name, philosopher)
 
@@ -67,21 +67,21 @@ class PhiloChat:
     ) -> None:
         user = self._find_user(username)
         if not user:
-            raise NotFoundError(f"User {username} not found")
+            raise NotFoundError(f"Username '{username}' not found")
 
         user.rename_chat(old_chat_name, new_chat_name)
 
     def get_chat_list(self, username: str) -> list[Chat]:
         user = self._find_user(username)
         if not user:
-            raise NotFoundError(f"User {username} not found")
+            raise NotFoundError(f"Username '{username}' not found")
 
         return user.get_chat_list()
 
     def delete_chat(self, username: str, chat_name: str) -> None:
         user = self._find_user(username)
         if not user:
-            raise NotFoundError(f"User {username} not found")
+            raise NotFoundError(f"Username '{username}' not found")
 
         return user.delete_chat(chat_name)
 
@@ -90,13 +90,13 @@ class PhiloChat:
     ) -> tuple[Message, Message]:
         user = self._find_user(username)
         if not user:
-            raise NotFoundError(f"User {username} not found")
+            raise NotFoundError(f"Username '{username}' not found")
 
         return user.complete_chat(chat_name, input_text, self.chat_completer)
 
     def get_philosophers_list(self) -> list[Philosopher]:
         if not self.philosophers:
-            raise NotFoundError("No philosopher found")
+            raise NotFoundError("No philosophers found")
 
         return list(self.philosophers.values())
 

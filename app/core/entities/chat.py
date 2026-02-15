@@ -10,6 +10,9 @@ class Chat:
         self.philosopher = philosopher
         self.messages: list[Message] = []
 
+    def rename(self, new_name: str) -> None:
+        self.name = new_name
+
     def complete_chat(
         self, input_text: str, username: str, name: str, age: int, chat_completer
     ) -> tuple[Message, Message]:

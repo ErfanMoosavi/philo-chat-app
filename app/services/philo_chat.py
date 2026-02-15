@@ -62,6 +62,15 @@ class PhiloChat:
 
         user.new_chat(chat_name, philosopher)
 
+    def rename_chat(
+        self, username: str, old_chat_name: str, new_chat_name: str
+    ) -> None:
+        user = self._find_user(username)
+        if not user:
+            raise NotFoundError(f"User {username} not found")
+
+        user.rename_chat(old_chat_name, new_chat_name)
+
     def get_chat_list(self, username: str) -> list[Chat]:
         user = self._find_user(username)
         if not user:

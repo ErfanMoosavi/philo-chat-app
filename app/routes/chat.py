@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..dependencies import get_philo_chat, get_current_user
-from ..schemas.chat import ChatCreateReq, MessageCreateReq
+from ..schemas.chat import ChatCreateReq, MessageCreateReq, ChatNameUpdateReq
 from ..services import PhiloChat
 from ..core.exceptions import BadRequestError, NotFoundError
 
@@ -39,6 +39,20 @@ def get_chats(
         return {"message": "No chats found"}
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
+
+
+@router.patch("/{chat_name}", status_code=status.HTTP_200_OK)
+def rename_chat(
+    old_chat_name,
+    request: ChatNameUpdateReq,
+    username: str = Depends(get_current_user),
+    pc: PhiloChat = Depends(get_philo_chat),
+):
+    try:
+        pc.rename_chat(username, old_chat_name, request.new_chat_name)
+
+    except Exception as e:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(e))
 
 
 @router.delete("/{chat_name}", status_code=status.HTTP_200_OK)

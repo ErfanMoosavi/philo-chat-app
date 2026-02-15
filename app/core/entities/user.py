@@ -25,6 +25,13 @@ class User:
         new_chat = Chat(chat_name, philosopher)
         self.chats[chat_name] = new_chat
 
+    def rename_chat(self, old_chat_name: str, new_chat_name: str) -> None:
+        chat = self._find_chat(old_chat_name)
+        if not chat:
+            raise NotFoundError("Chat not found")
+
+        chat.rename(new_chat_name)
+
     def get_chat_list(self) -> list[Chat]:
         if not self.chats:
             raise NotFoundError("No chats found")
@@ -33,7 +40,6 @@ class User:
 
     def delete_chat(self, chat_name: str) -> None:
         chat = self._find_chat(chat_name)
-
         if not chat:
             raise NotFoundError("Chat not found")
 
@@ -43,7 +49,6 @@ class User:
         self, chat_name: str, input_text: str, chat_completer
     ) -> tuple[Message, Message]:
         chat = self._find_chat(chat_name)
-
         if not chat:
             raise NotFoundError(f"Chat '{chat_name}' not found")
 

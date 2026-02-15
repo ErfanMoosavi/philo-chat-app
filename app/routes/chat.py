@@ -32,7 +32,7 @@ def get_chats(
     pc: PhiloChat = Depends(get_philo_chat),
 ):
     try:
-        chat_list = pc.list_chats(username)
+        chat_list = pc.get_chat_list(username)
         return chat_list
 
     except NotFoundError:

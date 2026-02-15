@@ -69,12 +69,12 @@ class PhiloChat:
 
         return user.select_chat(name)
 
-    def list_chats(self, username: str) -> list[Chat]:
+    def get_chat_list(self, username: str) -> list[Chat]:
         user = self._find_user(username)
         if not user:
             raise NotFoundError(f"User {username} not found")
 
-        return user.list_chats()
+        return user.get_chat_list()
 
     def exit_chat(self, username: str) -> None:
         user = self._find_user(username)
@@ -99,7 +99,7 @@ class PhiloChat:
 
         return user.complete_chat(chat_name, input_text, self.chat_completer)
 
-    def list_philosophers(self) -> list[Philosopher]:
+    def get_philosophers_list(self) -> list[Philosopher]:
         if not self.philosophers:
             raise NotFoundError("No philosopher found")
 

@@ -25,7 +25,7 @@ class User:
         new_chat = Chat(chat_name, philosopher)
         self.chats[chat_name] = new_chat
 
-    def list_chats(self) -> list[Chat]:
+    def get_chat_list(self) -> list[Chat]:
         if not self.chats:
             raise NotFoundError("No chats found")
 

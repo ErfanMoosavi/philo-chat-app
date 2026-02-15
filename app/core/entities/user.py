@@ -26,6 +26,9 @@ class User:
         self.chats[chat_name] = new_chat
 
     def rename_chat(self, old_chat_name: str, new_chat_name: str) -> None:
+        if self._find_chat(new_chat_name):
+            raise BadRequestError("Chat name already exists")
+
         chat = self._find_chat(old_chat_name)
         if not chat:
             raise NotFoundError("Chat not found")

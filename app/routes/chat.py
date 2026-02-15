@@ -26,6 +26,22 @@ def create_chat(
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
 
+@router.patch("/{chat_name}", status_code=status.HTTP_200_OK)
+def rename_chat(
+    chat_name: str,
+    request: ChatNameUpdateReq,
+    username: str = Depends(get_current_user),
+    pc: PhiloChat = Depends(get_philo_chat),
+):
+    try:
+        pc.rename_chat(username, chat_name, request.new_chat_name)
+
+    except NotFoundError as e:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(e))
+    except BadRequestError as e:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e))
+
+
 @router.get("/", status_code=status.HTTP_200_OK)
 def get_chats(
     username: str = Depends(get_current_user),
@@ -39,20 +55,6 @@ def get_chats(
         return []
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
-
-
-@router.patch("/{chat_name}", status_code=status.HTTP_200_OK)
-def rename_chat(
-    chat_name: str,
-    request: ChatNameUpdateReq,
-    username: str = Depends(get_current_user),
-    pc: PhiloChat = Depends(get_philo_chat),
-):
-    try:
-        pc.rename_chat(username, chat_name, request.new_chat_name)
-
-    except Exception as e:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, str(e))
 
 
 @router.delete("/{chat_name}", status_code=status.HTTP_200_OK)

@@ -11,7 +11,7 @@ class Chat:
         self.messages: list[Message] = []
 
     def complete_chat(
-        self, input_text: str, username: str, name: str, age: str, chat_completer
+        self, input_text: str, username: str, name: str, age: int, chat_completer
     ) -> tuple[Message, Message]:
         cleaned_input = input_text.strip()
 

@@ -9,9 +9,8 @@ class User:
         self.username = username
         self.password = password
         self.name = "Not Provided"
-        self.age = "Not Provided"
+        self.age = -1
         self.chats: dict[str, Chat] = {}
-        self.selected_chat: Chat | None = None
 
     def set_name(self, name: str) -> None:
         self.name = name
@@ -19,21 +18,12 @@ class User:
     def set_age(self, age: int) -> None:
         self.age = age
 
-    def new_chat(self, name: str, philosopher: Philosopher) -> None:
-        if self._find_chat(name):
+    def new_chat(self, chat_name: str, philosopher: Philosopher) -> None:
+        if self._find_chat(chat_name):
             raise BadRequestError("Chat already exists")
 
-        new_chat = Chat(name, philosopher)
-        self.chats[name] = new_chat
-
-    def select_chat(self, name: str) -> list[Message]:
-        chat = self._find_chat(name)
-
-        if not chat:
-            raise NotFoundError("Chat not found")
-
-        self.selected_chat = chat
-        return self.selected_chat.get_history()
+        new_chat = Chat(chat_name, philosopher)
+        self.chats[chat_name] = new_chat
 
     def list_chats(self) -> list[Chat]:
         if not self.chats:
@@ -41,27 +31,23 @@ class User:
 
         return list(self.chats.values())
 
-    def exit_chat(self) -> None:
-        if not self.selected_chat:
-            raise BadRequestError("No chat is selected")
-
-        self.selected_chat = None
-
-    def delete_chat(self, name: str) -> None:
-        chat = self._find_chat(name)
+    def delete_chat(self, chat_name: str) -> None:
+        chat = self._find_chat(chat_name)
 
         if not chat:
             raise NotFoundError("Chat not found")
 
-        if self.selected_chat == chat:
-            self.selected_chat = None
-        del self.chats[name]
+        del self.chats[chat_name]
 
-    def complete_chat(self, input_text: str, chat_completer) -> tuple[Message, Message]:
-        if not self.selected_chat:
-            raise BadRequestError("No chat is selected")
+    def complete_chat(
+        self, chat_name: str, input_text: str, chat_completer
+    ) -> tuple[Message, Message]:
+        chat = self._find_chat(chat_name)
 
-        return self.selected_chat.complete_chat(
+        if not chat:
+            raise NotFoundError(f"Chat '{chat_name}' not found")
+
+        return chat.complete_chat(
             input_text, self.username, self.name, self.age, chat_completer
         )
 

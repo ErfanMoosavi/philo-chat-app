@@ -10,12 +10,9 @@ class PhiloChat:
         self.chat_completer = ChatCompleter(base_url, api_key, model_name)
         self.users: dict[str, User] = {}
         self.philosophers: dict[int, Philosopher] = self._load_philosophers()
-        self.logged_in_user: User | None = None
 
     def signup(self, username: str, password: str) -> None:
-        if self.logged_in_user:
-            raise PermissionDeniedError("You are already logged in")
-        elif self._find_user(username):
+        if self._find_user(username):
             raise BadRequestError(f"Username {username} already taken")
 
         new_user = User(username, password)
@@ -24,76 +21,81 @@ class PhiloChat:
     def login(self, username: str, password: str) -> None:
         user = self._find_user(username)
 
-        if self.logged_in_user:
-            raise PermissionDeniedError("You are already logged in")
-        elif not user:
+        if not user:
             raise NotFoundError("Username not found")
         elif user.password != password:
             raise PermissionDeniedError("Wrong password")
 
-        self.logged_in_user = user
+    def logout(self, username: str) -> None:
+        user = self._find_user(username)
+        if not user:
+            raise NotFoundError("Username not found")
 
-    def logout(self) -> None:
-        if not self.logged_in_user:
-            raise PermissionDeniedError("No user is logged in")
+    def delete_account(self, username: str) -> None:
+        if username not in self.users:
+            raise NotFoundError(f"User {username} not found")
 
-        self.logged_in_user = None
+        del self.users[username]
 
-    def delete_account(self) -> None:
-        if not self.logged_in_user:
-            raise PermissionDeniedError("No user is logged in")
+    def set_name(self, username: str, name: str) -> None:
+        user = self._find_user(username)
+        if not user:
+            raise NotFoundError(f"User {username} not found")
 
-        del self.users[self.logged_in_user.username]
-        self.logout()
+        user.set_name(name)
 
-    def set_name(self, name: str) -> None:
-        if not self.logged_in_user:
-            raise PermissionDeniedError("No user is logged in")
+    def set_age(self, username: str, age: int) -> None:
+        user = self._find_user(username)
+        if not user:
+            raise NotFoundError(f"User {username} not found")
 
-        self.logged_in_user.set_name(name)
+        user.set_age(age)
 
-    def set_age(self, age: int) -> None:
-        if not self.logged_in_user:
-            raise PermissionDeniedError("No user is logged in")
-
-        self.logged_in_user.set_age(age)
-
-    def new_chat(self, name: str, philosopher_id: int) -> None:
-        if not self.logged_in_user:
-            raise PermissionDeniedError("No user is logged in")
-
+    def new_chat(self, username: str, name: str, philosopher_id: int) -> None:
+        user = self._find_user(username)
         philosopher = self._find_philosopher(philosopher_id)
-        return self.logged_in_user.new_chat(name, philosopher)
 
-    def select_chat(self, name: str) -> list[Message]:
-        if not self.logged_in_user:
-            raise PermissionDeniedError("No user is logged in")
+        if not user:
+            raise NotFoundError(f"User {username} not found")
+        if not philosopher:
+            raise NotFoundError(f"Philosopher with id {philosopher_id} not found")
 
-        return self.logged_in_user.select_chat(name)
+        user.new_chat(name, philosopher)
 
-    def list_chats(self) -> list[Chat]:
-        if not self.logged_in_user:
-            raise PermissionDeniedError("No user is logged in")
+    def select_chat(self, username: str, name: str) -> list[Message]:
+        user = self._find_user(username)
+        if not user:
+            raise NotFoundError(f"User {username} not found")
 
-        return self.logged_in_user.list_chats()
+        return user.select_chat(name)
 
-    def exit_chat(self) -> None:
-        if not self.logged_in_user:
-            raise PermissionDeniedError("No user is logged in")
+    def list_chats(self, username: str) -> list[Chat]:
+        user = self._find_user(username)
+        if not user:
+            raise NotFoundError(f"User {username} not found")
 
-        return self.logged_in_user.exit_chat()
+        return user.list_chats()
 
-    def delete_chat(self, name: str) -> None:
-        if not self.logged_in_user:
-            raise PermissionDeniedError("No user is logged in")
+    def exit_chat(self, username: str) -> None:
+        user = self._find_user(username)
+        if not user:
+            raise NotFoundError(f"User {username} not found")
 
-        return self.logged_in_user.delete_chat(name)
+        return user.exit_chat()
 
-    def complete_chat(self, input_text: str) -> tuple[Message, Message]:
-        if not self.logged_in_user:
-            raise PermissionDeniedError("No user is logged in")
+    def delete_chat(self, username: str, name: str) -> None:
+        user = self._find_user(username)
+        if not user:
+            raise NotFoundError(f"User {username} not found")
 
-        return self.logged_in_user.complete_chat(input_text, self.chat_completer)
+        return user.delete_chat(name)
+
+    def complete_chat(self, username: str, input_text: str) -> tuple[Message, Message]:
+        user = self._find_user(username)
+        if not user:
+            raise NotFoundError(f"User {username} not found")
+
+        return user.complete_chat(input_text, self.chat_completer)
 
     def list_philosophers(self) -> list[Philosopher]:
         if not self.philosophers:

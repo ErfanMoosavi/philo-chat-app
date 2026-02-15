@@ -20,12 +20,9 @@ def user_signup(request: SignupReq, pc: PhiloChat = Depends(get_philo_chat)):
         return {"message": "Signed up successfully"}
 
     except BadRequestError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An unexpected error occurred",
-        )
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
 
 @router.post("/login", status_code=status.HTTP_200_OK)
@@ -43,14 +40,11 @@ def user_login(request: LoginReq, pc: PhiloChat = Depends(get_philo_chat)):
         }
 
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail=str(e))
     except PermissionDeniedError as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An unexpected error occurred",
-        )
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
 
 @router.post("/logout", status_code=status.HTTP_200_OK)
@@ -63,9 +57,6 @@ def user_logout(
         return {"message": "Logged out successfully"}
 
     except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An unexpected error occurred",
-        )
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))

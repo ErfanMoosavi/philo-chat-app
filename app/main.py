@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from .routes import auth_routes, chat_routes, user_routes
+from .config import settings
 
 
 @asynccontextmanager
@@ -13,11 +14,11 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Philo-Chat",
-    version="0.1.0",
-    description="Chat with your favorite philosophers - Nietzsche, Socrates, and more-in real-time!",
-    contact={"name": "Erfan Moosavi", "email": "erfanmoosavi84@gmail.com"},
-    license_info={"name": "MIT"},
+    title=settings.app_name,
+    version=settings.version,
+    description=settings.description,
+    contact=settings.contact,
+    license_info=settings.license_info,
     lifespan=lifespan,
 )
 

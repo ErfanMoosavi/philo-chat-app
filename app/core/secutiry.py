@@ -4,7 +4,7 @@ import jwt
 from fastapi import HTTPException, status
 from jwt import DecodeError, InvalidSignatureError
 
-from .constants import TokenConfig
+from ..config import settings
 
 
 def generate_access_token(username: str) -> str:
@@ -13,9 +13,9 @@ def generate_access_token(username: str) -> str:
         "type": "access",
         "username": username,
         "iat": now,
-        "exp": now + timedelta(minutes=TokenConfig.ACCESS_TOKEN_EXPIRE_MINUTES),
+        "exp": now + timedelta(minutes=settings.access_token_expire_minutes),
     }
-    return jwt.encode(payload, "test_key")
+    return jwt.encode(payload, settings.secret_key)
 
 
 def generate_refresh_token(username: str) -> str:
@@ -24,14 +24,16 @@ def generate_refresh_token(username: str) -> str:
         "type": "refresh",
         "username": username,
         "iat": now,
-        "exp": now + timedelta(days=TokenConfig.REFRESH_TOKEN_EXPIRE_DAYS),
+        "exp": now + timedelta(days=settings.refresh_token_expire_days),
     }
-    return jwt.encode(payload, "test_key")
+    return jwt.encode(payload, settings.secret_key)
 
 
 def decode_refresh_token(refresh_token: str):
     try:
-        decoded = jwt.decode(refresh_token, "test_key", algorithms=["HS256"])
+        decoded = jwt.decode(
+            refresh_token, settings.secret_key, algorithms=[settings.algorithm]
+        )
         username = decoded.get("username")
 
         if not username:

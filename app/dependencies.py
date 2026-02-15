@@ -1,20 +1,17 @@
-import os
 from datetime import datetime, timezone
 
 import jwt
-from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import DecodeError, InvalidSignatureError
 
+from .config import settings
 from .services import PhiloChat
 
 # Create a global instance of PhiloChat
-load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
-base_url = os.getenv("BASE_URL")
-model = os.getenv("MODEL")
-philo_chat = PhiloChat(api_key=api_key, base_url=base_url, model_name=model)
+philo_chat = PhiloChat(
+    api_key=settings.api_key, base_url=settings.base_url, model_name=settings.llm_model
+)
 
 
 def get_philo_chat() -> PhiloChat:

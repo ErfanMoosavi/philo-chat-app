@@ -1,16 +1,18 @@
-from ..constants import UserDefaults
 from ..exceptions import BadRequestError, NotFoundError
 from .chat import Chat
 from .message import Message
 from .philosopher import Philosopher
+
+NAME_NOT_PROVIDED = "name_not_provided"
+AGE_NOT_PROVIDED = -1
 
 
 class User:
     def __init__(self, username: str, password: str) -> None:
         self.username = username
         self.password = password
-        self.name = UserDefaults.NAME_NOT_PROVIDED
-        self.age = UserDefaults.AGE_NOT_PROVIDED
+        self.name = NAME_NOT_PROVIDED
+        self.age = AGE_NOT_PROVIDED
         self.chats: dict[str, Chat] = {}
 
     def set_name(self, name: str) -> None:

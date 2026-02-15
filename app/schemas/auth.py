@@ -6,6 +6,6 @@ class SignupReq(BaseModel):
     password: str
 
 
-class LoginReq(BaseException):
+class LoginReq(BaseModel):
     username: str
     password: str

@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from services import PhiloChat
+from .services import PhiloChat
 
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")

@@ -1,11 +1,11 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from routes import auth_routes, chat_routes, user_routes
+from .routes import auth_routes, chat_routes, user_routes
 
 
 @asynccontextmanager
-def lifespan():
+async def lifespan(app: FastAPI):
     print("App startup")
     yield
     print("App shutdown")

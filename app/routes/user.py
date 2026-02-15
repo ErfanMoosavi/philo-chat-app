@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..dependencies import get_philo_chat, get_username_from_header
 from ..schemas.user import UserUpdateReq
@@ -15,8 +15,8 @@ def delete_user(
     try:
         pc.delete_account(username)
 
-    except Exception:
-        pass
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.patch("/me", status_code=status.HTTP_200_OK)
@@ -31,5 +31,5 @@ def update_user(
         if request.age:
             pc.set_age(username, request.age)
 
-    except Exception:
-        pass
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))

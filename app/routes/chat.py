@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..dependencies import get_philo_chat, get_username_from_header
 from ..schemas.chat import ChatCreateReq, MessageCreateReq
@@ -16,8 +16,8 @@ def create_chat(
     try:
         pc.new_chat(username, chat.chat_name, chat.philosopher_id)
 
-    except Exception:
-        pass
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
@@ -29,8 +29,8 @@ def get_chats(
         chat_list = pc.list_chats(username)
         return chat_list
 
-    except Exception:
-        pass
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.delete("/{chat_name}", status_code=status.HTTP_200_OK)
@@ -42,8 +42,8 @@ def delete_chat(
     try:
         pc.delete_chat(username, chat_name)
 
-    except Exception:
-        pass
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.post("/{chat_name}/messages", status_code=status.HTTP_201_CREATED)
@@ -57,5 +57,5 @@ def create_message(
         ai_msg, user_msg = pc.complete_chat(username, chat_name, data.input_text)
         return ai_msg, user_msg
 
-    except Exception:
-        pass
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))

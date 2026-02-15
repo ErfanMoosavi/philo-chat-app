@@ -112,7 +112,7 @@ class PhiloChat:
         return self.philosophers.get(philosopher_id)
 
     def _load_philosophers(self) -> dict[int, Philosopher]:
-        data_dir = Path(__file__).parent / "data/philosophers.json"
+        data_dir = Path(__file__).parent.parent / "resources/philosophers.json"
 
         with open(data_dir, "r", encoding="utf-8") as f:
             raw_philosophers = json.load(f)

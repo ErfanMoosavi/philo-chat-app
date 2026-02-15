@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..dependencies import get_philo_chat, get_username_from_header
 from ..schemas.auth import LoginReq, SignupReq
@@ -12,8 +12,8 @@ def user_signup(request: SignupReq, pc: PhiloChat = Depends(get_philo_chat)):
     try:
         pc.signup(request.username, request.password)
 
-    except Exception:
-        pass
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.post("/login", status_code=status.HTTP_200_OK)
@@ -21,8 +21,8 @@ def user_login(request: LoginReq, pc: PhiloChat = Depends(get_philo_chat)):
     try:
         pc.login(request.username, request.password)
 
-    except Exception:
-        pass
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.post("/logout", status_code=status.HTTP_200_OK)
@@ -33,5 +33,5 @@ def user_logout(
     try:
         pc.logout(username)
 
-    except Exception:
-        pass
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))

@@ -7,10 +7,11 @@ load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 base_url = os.getenv("BASE_URL")
 model = os.getenv("MODEL")
+philo_chat = PhiloChat(api_key=api_key, base_url=base_url, model_name=model)
 
 
 def get_philo_chat() -> PhiloChat:
-    return PhiloChat(api_key=api_key, base_url=base_url, model_name=model)
+    return philo_chat
 
 
 def get_username_from_header(request: Request) -> str:

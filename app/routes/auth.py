@@ -6,7 +6,7 @@ from ..core.secutiry import (
     generate_access_token,
     generate_refresh_token,
 )
-from ..dependencies import get_current_user, get_philo_chat
+from ..dependencies import get_philo_chat, get_token
 from ..schemas.auth import LoginReq, RefreshTokenReq, SignupReq
 from ..services import PhiloChat
 
@@ -48,16 +48,13 @@ def user_login(request: LoginReq, pc: PhiloChat = Depends(get_philo_chat)):
 
 
 @router.post("/logout", status_code=status.HTTP_200_OK)
-def user_logout(
-    username: str = Depends(get_current_user),
-    pc: PhiloChat = Depends(get_philo_chat),
-):
+def user_logout(token: str = Depends(get_token)):
     try:
-        pc.logout(username)
+        from ..dependencies import blacklisted_tokens
+
+        blacklisted_tokens.add(token)
         return {"message": "Logged out successfully"}
 
-    except NotFoundError as e:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 

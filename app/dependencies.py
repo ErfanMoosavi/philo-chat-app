@@ -34,6 +34,11 @@ def get_current_user(
         decoded = jwt.decode(token, "test_key", algorithms=["HS256"])
         username = decoded.get("username")
 
+        if token in blacklisted_tokens:
+            raise HTTPException(
+                status.HTTP_401_UNAUTHORIZED,
+                "Authentication failed: token has been revoked",
+            )
         if not username:
             raise HTTPException(
                 status.HTTP_401_UNAUTHORIZED,
@@ -61,3 +66,12 @@ def get_current_user(
         )
     except Exception as e:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, str(e))
+
+
+# Set of blacklisted tokens
+blacklisted_tokens: set[str] = set()
+
+
+# Logout receives the token from this function to add it to the black list
+def get_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
+    return credentials.credentials

@@ -90,12 +90,14 @@ class PhiloChat:
 
         return user.delete_chat(name)
 
-    def complete_chat(self, username: str, input_text: str) -> tuple[Message, Message]:
+    def complete_chat(
+        self, username: str, chat_name: str, input_text: str
+    ) -> tuple[Message, Message]:
         user = self._find_user(username)
         if not user:
             raise NotFoundError(f"User {username} not found")
 
-        return user.complete_chat(input_text, self.chat_completer)
+        return user.complete_chat(chat_name, input_text, self.chat_completer)
 
     def list_philosophers(self) -> list[Philosopher]:
         if not self.philosophers:

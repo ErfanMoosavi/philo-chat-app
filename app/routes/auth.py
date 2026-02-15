@@ -8,6 +8,7 @@ from ..dependencies import (
 )
 from ..schemas.auth import LoginReq, SignupReq
 from ..services import PhiloChat
+from ..core.exceptions import BadRequestError, NotFoundError, PermissionDeniedError
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
@@ -16,10 +17,15 @@ router = APIRouter(prefix="/auth", tags=["authentication"])
 def user_signup(request: SignupReq, pc: PhiloChat = Depends(get_philo_chat)):
     try:
         pc.signup(request.username, request.password)
-        return {"message": "Signed up seccessfully"}
+        return {"message": "Signed up successfully"}
 
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    except BadRequestError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred",
+        )
 
 
 @router.post("/login", status_code=status.HTTP_200_OK)
@@ -36,8 +42,15 @@ def user_login(request: LoginReq, pc: PhiloChat = Depends(get_philo_chat)):
             "refresh_token": refresh_token,
         }
 
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    except PermissionDeniedError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred",
+        )
 
 
 @router.post("/logout", status_code=status.HTTP_200_OK)
@@ -47,7 +60,12 @@ def user_logout(
 ):
     try:
         pc.logout(username)
-        return {"message": "Logged out seccessfully"}
+        return {"message": "Logged out successfully"}
 
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred",
+        )

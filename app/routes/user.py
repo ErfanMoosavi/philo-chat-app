@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from ..dependencies import get_philo_chat, get_current_user
 from ..schemas.user import UserUpdateReq
 from ..services import PhiloChat
+from ..core.exceptions import NotFoundError
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -14,10 +15,15 @@ def delete_user(
 ):
     try:
         pc.delete_account(username)
-        return {"message": "User deleted seccessfully"}
+        return {"message": "User deleted successfully"}
 
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred",
+        )
 
 
 @router.patch("/me", status_code=status.HTTP_200_OK)
@@ -27,12 +33,17 @@ def update_user(
     pc: PhiloChat = Depends(get_philo_chat),
 ):
     try:
-        if request.name:
+        if request.name is not None:
             pc.set_name(username, request.name)
-        if request.age:
+        if request.age is not None:
             pc.set_age(username, request.age)
 
-        return {"message": "Updated user seccessfully"}
+        return {"message": "Updated user successfully"}
 
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred",
+        )

@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from ..dependencies import get_philo_chat, get_current_user
+from ..core.exceptions import NotFoundError
+from ..dependencies import get_current_user, get_philo_chat
 from ..schemas.user import UserUpdateReq
 from ..services import PhiloChat
-from ..core.exceptions import NotFoundError
 
 router = APIRouter(prefix="/users", tags=["users"])
 

@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+
 from .routes import auth_routes, chat_routes, user_routes
 
 

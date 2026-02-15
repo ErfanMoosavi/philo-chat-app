@@ -43,13 +43,13 @@ def get_chats(
 
 @router.patch("/{chat_name}", status_code=status.HTTP_200_OK)
 def rename_chat(
-    old_chat_name,
+    chat_name: str,
     request: ChatNameUpdateReq,
     username: str = Depends(get_current_user),
     pc: PhiloChat = Depends(get_philo_chat),
 ):
     try:
-        pc.rename_chat(username, old_chat_name, request.new_chat_name)
+        pc.rename_chat(username, chat_name, request.new_chat_name)
 
     except Exception as e:
         raise HTTPException(status.HTTP_404_NOT_FOUND, str(e))

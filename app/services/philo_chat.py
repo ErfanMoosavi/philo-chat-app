@@ -69,13 +69,6 @@ class PhiloChat:
 
         return user.get_chat_list()
 
-    def exit_chat(self, username: str) -> None:
-        user = self._find_user(username)
-        if not user:
-            raise NotFoundError(f"User {username} not found")
-
-        return user.exit_chat()
-
     def delete_chat(self, username: str, name: str) -> None:
         user = self._find_user(username)
         if not user:

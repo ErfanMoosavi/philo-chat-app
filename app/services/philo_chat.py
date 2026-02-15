@@ -51,7 +51,7 @@ class PhiloChat:
 
         user.set_age(age)
 
-    def new_chat(self, username: str, name: str, philosopher_id: int) -> None:
+    def new_chat(self, username: str, chat_name: str, philosopher_id: int) -> None:
         user = self._find_user(username)
         philosopher = self._find_philosopher(philosopher_id)
 
@@ -60,7 +60,7 @@ class PhiloChat:
         if not philosopher:
             raise NotFoundError(f"Philosopher with id {philosopher_id} not found")
 
-        user.new_chat(name, philosopher)
+        user.new_chat(chat_name, philosopher)
 
     def get_chat_list(self, username: str) -> list[Chat]:
         user = self._find_user(username)
@@ -69,12 +69,12 @@ class PhiloChat:
 
         return user.get_chat_list()
 
-    def delete_chat(self, username: str, name: str) -> None:
+    def delete_chat(self, username: str, chat_name: str) -> None:
         user = self._find_user(username)
         if not user:
             raise NotFoundError(f"User {username} not found")
 
-        return user.delete_chat(name)
+        return user.delete_chat(chat_name)
 
     def complete_chat(
         self, username: str, chat_name: str, input_text: str

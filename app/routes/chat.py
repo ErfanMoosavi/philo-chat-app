@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from ..dependencies import get_philo_chat, get_username_from_header
+from ..dependencies import get_philo_chat, get_current_user
 from ..schemas.chat import ChatCreateReq, MessageCreateReq
 from ..services import PhiloChat
 
@@ -10,7 +10,7 @@ router = APIRouter(prefix="/chats", tags=["chats"])
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_chat(
     chat: ChatCreateReq,
-    username: str = Depends(get_username_from_header),
+    username: str = Depends(get_current_user),
     pc: PhiloChat = Depends(get_philo_chat),
 ):
     try:
@@ -22,7 +22,7 @@ def create_chat(
 
 @router.get("/", status_code=status.HTTP_200_OK)
 def get_chats(
-    username: str = Depends(get_username_from_header),
+    username: str = Depends(get_current_user),
     pc: PhiloChat = Depends(get_philo_chat),
 ):
     try:
@@ -36,7 +36,7 @@ def get_chats(
 @router.delete("/{chat_name}", status_code=status.HTTP_200_OK)
 def delete_chat(
     chat_name: str,
-    username: str = Depends(get_username_from_header),
+    username: str = Depends(get_current_user),
     pc: PhiloChat = Depends(get_philo_chat),
 ):
     try:
@@ -50,7 +50,7 @@ def delete_chat(
 def create_message(
     chat_name: str,
     data: MessageCreateReq,
-    username: str = Depends(get_username_from_header),
+    username: str = Depends(get_current_user),
     pc: PhiloChat = Depends(get_philo_chat),
 ):
     try:

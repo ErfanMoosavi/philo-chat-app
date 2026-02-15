@@ -1,6 +1,11 @@
 import os
-from fastapi import Request
+from datetime import datetime, timedelta
+
+import jwt
 from dotenv import load_dotenv
+from fastapi import Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
 from .services import PhiloChat
 
 load_dotenv()
@@ -14,6 +19,33 @@ def get_philo_chat() -> PhiloChat:
     return philo_chat
 
 
-def get_username_from_header(request: Request) -> str:
-    username = request.headers.get("X-Username")
+security = HTTPBearer()
+
+
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials
+    decoded = jwt.decode(token, "test_key", algorithm="HS256")
+    username = decoded.get("username")
     return username
+
+
+def generate_access_token(username: str, expires_in: int = 1) -> str:
+    now = datetime.now()
+    payload = {
+        "type": "access",
+        "username": username,
+        "iat": now,
+        "exp": now + timedelta(hours=expires_in),
+    }
+    return jwt.encode(payload, "test_key", algorithm="HS256")
+
+
+def generate_refresh_token(username: str, expires_in: int = 7) -> str:
+    now = datetime.now()
+    payload = {
+        "type": "refresh",
+        "username": username,
+        "iat": now,
+        "exp": now + timedelta(days=expires_in),
+    }
+    return jwt.encode(payload, "test_key", algorithm="HS256")

@@ -62,13 +62,6 @@ class PhiloChat:
 
         user.new_chat(name, philosopher)
 
-    def select_chat(self, username: str, name: str) -> list[Message]:
-        user = self._find_user(username)
-        if not user:
-            raise NotFoundError(f"User {username} not found")
-
-        return user.select_chat(name)
-
     def get_chat_list(self, username: str) -> list[Chat]:
         user = self._find_user(username)
         if not user:

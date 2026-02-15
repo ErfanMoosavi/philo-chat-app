@@ -1,14 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from ..dependencies import (
-    get_philo_chat,
-    get_current_user,
-    generate_access_token,
-    generate_refresh_token,
-)
+from ..core.exceptions import BadRequestError, NotFoundError, PermissionDeniedError
+from ..core.secutiry import generate_access_token, generate_refresh_token
+from ..dependencies import get_current_user, get_philo_chat
 from ..schemas.auth import LoginReq, SignupReq
 from ..services import PhiloChat
-from ..core.exceptions import BadRequestError, NotFoundError, PermissionDeniedError
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 

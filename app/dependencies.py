@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 import jwt
 from dotenv import load_dotenv
@@ -61,25 +61,3 @@ def get_current_user(
         )
     except Exception as e:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, str(e))
-
-
-def generate_access_token(username: str, expires_in: int = 1) -> str:
-    now = datetime.now(timezone.utc)
-    payload = {
-        "type": "access",
-        "username": username,
-        "iat": now,
-        "exp": now + timedelta(hours=expires_in),
-    }
-    return jwt.encode(payload, "test_key")
-
-
-def generate_refresh_token(username: str, expires_in: int = 7 * 24) -> str:
-    now = datetime.now(timezone.utc)
-    payload = {
-        "type": "refresh",
-        "username": username,
-        "iat": now,
-        "exp": now + timedelta(days=expires_in),
-    }
-    return jwt.encode(payload, "test_key")

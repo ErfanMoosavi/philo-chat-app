@@ -44,7 +44,7 @@ def get_current_user(
                 status.HTTP_401_UNAUTHORIZED,
                 "Authetication failed, token type not valid",
             )
-        if datetime.fromtimestamp(decoded.get("exp")) < datetime.now:
+        if datetime.fromtimestamp(decoded.get("exp")) < datetime.now():
             raise HTTPException(
                 status.HTTP_401_UNAUTHORIZED, "Authetication failed, token expired"
             )

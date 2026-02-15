@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 
 from ..dependencies import get_philo_chat
 from ..schemas.chat import ChatCreateReq, MessageCreateReq
@@ -7,7 +7,7 @@ from ..services import PhiloChat
 router = APIRouter(prefix="/chats", tags=["chats"])
 
 
-@router.post("/")
+@router.post("/", status_code=status.HTTP_201_CREATED)
 def create_chat(chat: ChatCreateReq, pc: PhiloChat = Depends(get_philo_chat)):
     try:
         pc.new_chat(chat.chat_name, chat.philosopher_id)
@@ -16,7 +16,7 @@ def create_chat(chat: ChatCreateReq, pc: PhiloChat = Depends(get_philo_chat)):
         pass
 
 
-@router.get("/")
+@router.get("/", status_code=status.HTTP_200_OK)
 def get_chats(pc: PhiloChat = Depends(get_philo_chat)):
     try:
         chat_list = pc.list_chats()
@@ -26,7 +26,7 @@ def get_chats(pc: PhiloChat = Depends(get_philo_chat)):
         pass
 
 
-@router.delete("/{chat_name}")
+@router.delete("/{chat_name}", status_code=status.HTTP_200_OK)
 def delete_chat(chat_name: str, pc: PhiloChat = Depends(get_philo_chat)):
     try:
         pc.delete_chat(chat_name)
@@ -35,7 +35,7 @@ def delete_chat(chat_name: str, pc: PhiloChat = Depends(get_philo_chat)):
         pass
 
 
-@router.post("/{chat_name}/messages")
+@router.post("/{chat_name}/messages", status_code=status.HTTP_201_CREATED)
 def create_message(
     chat_name: str, data: MessageCreateReq, pc: PhiloChat = Depends(get_philo_chat)
 ):

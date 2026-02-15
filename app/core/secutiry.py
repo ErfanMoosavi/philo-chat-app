@@ -4,25 +4,27 @@ import jwt
 from fastapi import HTTPException, status
 from jwt import DecodeError, InvalidSignatureError
 
+from .constants import TokenConfig
 
-def generate_access_token(username: str, expires_in: int = 1) -> str:
+
+def generate_access_token(username: str) -> str:
     now = datetime.now(timezone.utc)
     payload = {
         "type": "access",
         "username": username,
         "iat": now,
-        "exp": now + timedelta(hours=expires_in),
+        "exp": now + timedelta(minutes=TokenConfig.ACCESS_TOKEN_EXPIRE_MINUTES),
     }
     return jwt.encode(payload, "test_key")
 
 
-def generate_refresh_token(username: str, expires_in: int = 7 * 24) -> str:
+def generate_refresh_token(username: str) -> str:
     now = datetime.now(timezone.utc)
     payload = {
         "type": "refresh",
         "username": username,
         "iat": now,
-        "exp": now + timedelta(days=expires_in),
+        "exp": now + timedelta(days=TokenConfig.REFRESH_TOKEN_EXPIRE_DAYS),
     }
     return jwt.encode(payload, "test_key")
 

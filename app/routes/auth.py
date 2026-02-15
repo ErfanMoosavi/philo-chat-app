@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status
 
-from ..dependencies import get_philo_chat
+from ..dependencies import get_philo_chat, get_username_from_header
 from ..schemas.auth import LoginReq, SignupReq
 from ..services import PhiloChat
 
@@ -26,9 +26,12 @@ def user_login(request: LoginReq, pc: PhiloChat = Depends(get_philo_chat)):
 
 
 @router.post("/logout", status_code=status.HTTP_200_OK)
-def user_logout(pc: PhiloChat = Depends(get_philo_chat)):
+def user_logout(
+    username: str = Depends(get_username_from_header),
+    pc: PhiloChat = Depends(get_philo_chat),
+):
     try:
-        pc.logout()
+        pc.logout(username)
 
     except Exception:
         pass

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status
 
-from ..dependencies import get_philo_chat
+from ..dependencies import get_philo_chat, get_username_from_header
 from ..schemas.user import UserUpdateReq
 from ..services import PhiloChat
 
@@ -8,21 +8,28 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.delete("/me", status_code=status.HTTP_200_OK)
-def delete_user(pc: PhiloChat = Depends(get_philo_chat)):
+def delete_user(
+    username: str = Depends(get_username_from_header),
+    pc: PhiloChat = Depends(get_philo_chat),
+):
     try:
-        pc.delete_account()
+        pc.delete_account(username)
 
     except Exception:
         pass
 
 
 @router.patch("/me", status_code=status.HTTP_200_OK)
-def update_user(request: UserUpdateReq, pc: PhiloChat = Depends(get_philo_chat)):
+def update_user(
+    request: UserUpdateReq,
+    username: str = Depends(get_username_from_header),
+    pc: PhiloChat = Depends(get_philo_chat),
+):
     try:
         if request.name:
-            pc.set_name(request.name)
+            pc.set_name(username, request.name)
         if request.age:
-            pc.set_age(request.age)
+            pc.set_age(username, request.age)
 
     except Exception:
         pass

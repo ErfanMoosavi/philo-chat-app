@@ -14,6 +14,7 @@ def delete_user(
 ):
     try:
         pc.delete_account(username)
+        return {"message": "User deleted seccessfully"}
 
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -30,6 +31,8 @@ def update_user(
             pc.set_name(username, request.name)
         if request.age:
             pc.set_age(username, request.age)
+
+        return {"message": "Updated user seccessfully"}
 
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))

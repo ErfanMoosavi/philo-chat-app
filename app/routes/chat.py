@@ -15,6 +15,7 @@ def create_chat(
 ):
     try:
         pc.new_chat(username, chat.chat_name, chat.philosopher_id)
+        return {"message": "Created chat seccessfully"}
 
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -41,6 +42,7 @@ def delete_chat(
 ):
     try:
         pc.delete_chat(username, chat_name)
+        return {"message": "Deleted chat seccessfully"}
 
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))

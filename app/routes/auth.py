@@ -1,6 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from ..dependencies import get_philo_chat, get_current_user
+from ..dependencies import (
+    get_philo_chat,
+    get_current_user,
+    generate_access_token,
+    generate_refresh_token,
+)
 from ..schemas.auth import LoginReq, SignupReq
 from ..services import PhiloChat
 
@@ -11,6 +16,7 @@ router = APIRouter(prefix="/auth", tags=["authentication"])
 def user_signup(request: SignupReq, pc: PhiloChat = Depends(get_philo_chat)):
     try:
         pc.signup(request.username, request.password)
+        return {"message": "Signed up seccessfully"}
 
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -20,6 +26,15 @@ def user_signup(request: SignupReq, pc: PhiloChat = Depends(get_philo_chat)):
 def user_login(request: LoginReq, pc: PhiloChat = Depends(get_philo_chat)):
     try:
         pc.login(request.username, request.password)
+
+        access_token = generate_access_token(request.username)
+        refresh_token = generate_refresh_token(request.username)
+
+        return {
+            "message": "Logged in successfully",
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        }
 
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -32,6 +47,7 @@ def user_logout(
 ):
     try:
         pc.logout(username)
+        return {"message": "Logged out seccessfully"}
 
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))

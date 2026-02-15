@@ -1,11 +1,11 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import jwt
-from jwt import InvalidSignatureError, DecodeError
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jwt import DecodeError, InvalidSignatureError
 
 from .services import PhiloChat
 
@@ -31,7 +31,7 @@ def get_current_user(
 ) -> str:
     token = credentials.credentials
     try:
-        decoded = jwt.decode(token, "test_key", algorithm="HS256")
+        decoded = jwt.decode(token, "test_key", algorithms=["HS256"])
         username = decoded.get("username")
 
         if not username:
@@ -44,7 +44,8 @@ def get_current_user(
                 status.HTTP_401_UNAUTHORIZED,
                 "Authetication failed, token type not valid",
             )
-        if datetime.fromtimestamp(decoded.get("exp")) < datetime.now():
+        exp_time = datetime.fromtimestamp(decoded.get("exp"), tz=timezone.utc)
+        if exp_time < datetime.now(timezone.utc):
             raise HTTPException(
                 status.HTTP_401_UNAUTHORIZED, "Authetication failed, token expired"
             )
@@ -56,29 +57,29 @@ def get_current_user(
         )
     except DecodeError:
         raise HTTPException(
-            status.HTTP_401_UNAUTHORIZED, "Authetication failed, error in decoder"
+            status.HTTP_401_UNAUTHORIZED, "Authetication failed, decoder error"
         )
     except Exception as e:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, str(e))
 
 
 def generate_access_token(username: str, expires_in: int = 1) -> str:
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     payload = {
         "type": "access",
         "username": username,
         "iat": now,
         "exp": now + timedelta(hours=expires_in),
     }
-    return jwt.encode(payload, "test_key", algorithm="HS256")
+    return jwt.encode(payload, "test_key")
 
 
 def generate_refresh_token(username: str, expires_in: int = 7 * 24) -> str:
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     payload = {
         "type": "refresh",
         "username": username,
         "iat": now,
         "exp": now + timedelta(days=expires_in),
     }
-    return jwt.encode(payload, "test_key", algorithm="HS256")
+    return jwt.encode(payload, "test_key")

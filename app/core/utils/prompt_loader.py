@@ -6,7 +6,7 @@ import yaml
 
 @lru_cache(maxsize=32)
 def _load_templates() -> dict[str, str]:
-    prompt_path = Path(__file__).parent.parent.parent / "data/prompt_template.yaml"
+    prompt_path = Path(__file__).parent.parent.parent / "resources/prompt_template.yaml"
     data = yaml.safe_load(prompt_path.read_text(encoding="utf-8"))
     return data["prompt"]
 

@@ -36,7 +36,7 @@ def get_chats(
         return chat_list
 
     except NotFoundError:
-        return {"message": "No chats found"}
+        return []
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 

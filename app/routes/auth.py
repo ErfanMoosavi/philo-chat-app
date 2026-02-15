@@ -14,7 +14,7 @@ router = APIRouter(prefix="/auth", tags=["authentication"])
 
 
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
-def user_signup(request: SignupReq, pc: PhiloChat = Depends(get_philo_chat)):
+def signup(request: SignupReq, pc: PhiloChat = Depends(get_philo_chat)):
     try:
         pc.signup(request.username, request.password)
         return {"message": "Signed up successfully"}
@@ -26,7 +26,7 @@ def user_signup(request: SignupReq, pc: PhiloChat = Depends(get_philo_chat)):
 
 
 @router.post("/login", status_code=status.HTTP_200_OK)
-def user_login(request: LoginReq, pc: PhiloChat = Depends(get_philo_chat)):
+def login(request: LoginReq, pc: PhiloChat = Depends(get_philo_chat)):
     try:
         pc.login(request.username, request.password)
 
@@ -48,7 +48,7 @@ def user_login(request: LoginReq, pc: PhiloChat = Depends(get_philo_chat)):
 
 
 @router.post("/logout", status_code=status.HTTP_200_OK)
-def user_logout(token: str = Depends(get_token)):
+def logout(token: str = Depends(get_token)):
     try:
         from ..dependencies import blacklisted_tokens
 
@@ -60,7 +60,7 @@ def user_logout(token: str = Depends(get_token)):
 
 
 @router.post("/refresh-token", status_code=status.HTTP_200_OK)
-def user_refresh_token(request: RefreshTokenReq):
+def refresh_token(request: RefreshTokenReq):
     try:
         username = decode_refresh_token(request.refresh_token)
         access_token = generate_access_token(username)

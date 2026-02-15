@@ -23,7 +23,7 @@ class PhiloChat:
 
         if not user:
             raise NotFoundError(f"Username '{username}' not found")
-        elif user.password != password:
+        elif not user.verify_password(password):
             raise PermissionDeniedError("Password is incorrect")
 
     def logout(self, username: str) -> None:

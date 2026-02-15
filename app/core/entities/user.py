@@ -33,7 +33,7 @@ class User:
         if not chat:
             raise NotFoundError("Chat not found")
 
-        chat.rename(new_chat_name)
+        chat.rename_chat(new_chat_name)
 
     def get_chat_list(self) -> list[Chat]:
         if not self.chats:

@@ -9,3 +9,7 @@ class SignupReq(BaseModel):
 class LoginReq(BaseModel):
     username: str
     password: str
+
+
+class RefreshTokenReq(BaseModel):
+    refresh_token: str

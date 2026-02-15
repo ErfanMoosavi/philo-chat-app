@@ -1,9 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..core.exceptions import BadRequestError, NotFoundError, PermissionDeniedError
-from ..core.secutiry import generate_access_token, generate_refresh_token
+from ..core.secutiry import (
+    decode_refresh_token,
+    generate_access_token,
+    generate_refresh_token,
+)
 from ..dependencies import get_current_user, get_philo_chat
-from ..schemas.auth import LoginReq, SignupReq
+from ..schemas.auth import LoginReq, RefreshTokenReq, SignupReq
 from ..services import PhiloChat
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
@@ -54,5 +58,19 @@ def user_logout(
 
     except NotFoundError as e:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
+
+
+@router.post("/refresh-token", status_code=status.HTTP_200_OK)
+def user_refresh_token(request: RefreshTokenReq):
+    try:
+        username = decode_refresh_token(request.refresh_token)
+        access_token = generate_access_token(username)
+        return {
+            "message": "Generated access token successfully",
+            "access_token": access_token,
+        }
+
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))

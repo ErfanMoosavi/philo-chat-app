@@ -31,7 +31,7 @@ def update_user(
 ):
     try:
         if request.name is not None:
-            pc.set_name(username, request.name)
+            pc.set_first_name(username, request.first_name)
         if request.age is not None:
             pc.set_age(username, request.age)
 

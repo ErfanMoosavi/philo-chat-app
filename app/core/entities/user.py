@@ -16,15 +16,15 @@ class User:
     def __init__(self, username: str, password: str) -> None:
         self.username = username
         self.password_hash = pwd_context.hash(password)
-        self.name = NAME_NOT_PROVIDED
+        self.first_name = NAME_NOT_PROVIDED
         self.age = AGE_NOT_PROVIDED
         self.chats: dict[str, Chat] = {}
 
     def verify_password(self, password: str) -> bool:
         return pwd_context.verify(password, self.password_hash)
 
-    def set_name(self, name: str) -> None:
-        self.name = name
+    def set_first_name(self, first_name: str) -> None:
+        self.first_name = first_name
 
     def set_age(self, age: int) -> None:
         self.age = age

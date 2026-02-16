@@ -13,10 +13,10 @@ class Chat:
         self.name = new_name
 
     def complete_chat(
-        self, input_text: str, username: str, name: str, age: int, chat_completer
+        self, input_text: str, username: str, first_name: str, age: int, chat_completer
     ) -> tuple[Message, Message]:
         if self._is_first_message():
-            prompt = load_prompt(input_text, self.philosopher.name, name, age)
+            prompt = load_prompt(input_text, self.philosopher.name, first_name, age)
             prompt_msg = Message(MessageRole.USER, username, prompt)
             self._add_message(prompt_msg)
 

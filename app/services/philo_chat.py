@@ -37,12 +37,12 @@ class PhiloChat:
 
         del self.users[username]
 
-    def set_name(self, username: str, name: str) -> None:
+    def set_first_name(self, username: str, first_name: str) -> None:
         user = self._find_user(username)
         if not user:
             raise NotFoundError(f"Username '{username}' not found")
 
-        user.set_name(name)
+        user.set_first_name(first_name)
 
     def set_age(self, username: str, age: int) -> None:
         user = self._find_user(username)

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
 from ..core.exceptions import BadRequestError, NotFoundError, PermissionDeniedError
 from ..core.secutiry import (
@@ -6,7 +7,7 @@ from ..core.secutiry import (
     generate_access_token,
     generate_refresh_token,
 )
-from ..dependencies import get_philo_chat, get_token
+from ..dependencies import get_db, get_philo_chat, get_token
 from ..schemas.auth import LoginReq, RefreshTokenReq, SignupReq
 from ..services import PhiloChat
 
@@ -14,9 +15,13 @@ router = APIRouter(prefix="/auth", tags=["authentication"])
 
 
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
-def signup(request: SignupReq, pc: PhiloChat = Depends(get_philo_chat)):
+def signup(
+    request: SignupReq,
+    db: Session = Depends(get_db),
+    pc: PhiloChat = Depends(get_philo_chat),
+):
     try:
-        pc.signup(request.username, request.password)
+        pc.signup(db, request.username, request.password)
         return {"message": "Signed up successfully"}
 
     except BadRequestError as e:
@@ -26,9 +31,13 @@ def signup(request: SignupReq, pc: PhiloChat = Depends(get_philo_chat)):
 
 
 @router.post("/login", status_code=status.HTTP_200_OK)
-def login(request: LoginReq, pc: PhiloChat = Depends(get_philo_chat)):
+def login(
+    request: LoginReq,
+    db: Session = Depends(get_db),
+    pc: PhiloChat = Depends(get_philo_chat),
+):
     try:
-        pc.login(request.username, request.password)
+        pc.login(db, request.username, request.password)
 
         access_token = generate_access_token(request.username)
         refresh_token = generate_refresh_token(request.username)

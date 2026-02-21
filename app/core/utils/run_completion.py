@@ -1,12 +1,9 @@
 from openai import OpenAI
 
-from ..entities import Message
 from ..exceptions import LLMError
 
 
-def run_completion(
-    base_url: str, api_key: str, llm_model: str, messages: list[Message]
-) -> str:
+def run_completion(base_url: str, api_key: str, llm_model: str, messages: list) -> str:
     try:
         client = OpenAI(base_url=base_url, api_key=api_key)
         completion_messages = [

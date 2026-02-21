@@ -1,11 +1,10 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Session, relationship
 
-from ..entities import Chat, Philosopher
+from ...database import Base
 from ..exceptions import NotFoundError
+from ..models import Chat, Philosopher
 
-Base = declarative_base()
 NAME_NOT_PROVIDED = "name_not_provided"
 AGE_NOT_PROVIDED = -1
 
@@ -13,7 +12,7 @@ AGE_NOT_PROVIDED = -1
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     chats = relationship("Chat")
 
     username = Column(String, unique=True, nullable=False)
@@ -21,11 +20,11 @@ class User(Base):
     first_name = Column(String, default=NAME_NOT_PROVIDED)
     age = Column(Integer, default=AGE_NOT_PROVIDED)
 
-    def set_first_name(self, first_name: str) -> None:
-        self.first_name = first_name
-
-    def set_age(self, age: int) -> None:
-        self.age = age
+    def update_profile(self, first_name: str | None, age: int | None) -> None:
+        if first_name:
+            self.first_name = first_name
+        if age:
+            self.first_name = age
 
     def new_chat(self, chat_name: str, philosopher: Philosopher) -> None:
         new_chat = Chat(user_id=self.id, name=chat_name, philosopher=philosopher)
@@ -55,8 +54,8 @@ class User(Base):
 
         chat.complete_chat(input_text, self.username, self.first_name, self.age)
 
-    # def _find_chat(self, db: Session, chat_id: str) -> Chat | None:
-    #     chat = db.get(User, chat_id)
-    #     if not chat:
-    #         raise NotFoundError(f"User with id '{chat_id}' not found")
-    #     return chat
+    def _find_chat(self, db: Session, chat_id: str) -> Chat | None:
+        chat = db.get(Chat, chat_id)
+        if not chat:
+            raise NotFoundError(f"Chat with id '{chat_id}' not found")
+        return chat

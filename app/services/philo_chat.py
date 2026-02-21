@@ -1,8 +1,8 @@
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
-from ..core.entities import Chat, Philosopher, User
 from ..core.exceptions import BadRequestError, NotFoundError, PermissionDeniedError
+from ..core.models import Chat, Philosopher, User
 
 # Create hash object
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -33,14 +33,11 @@ class PhiloChat:
         db.delete(user)
         db.commit()
 
-    def set_first_name(self, db: Session, user_id: int, name: str) -> None:
+    def update_profile(
+        self, db: Session, user_id: int, name: str | None, age: int | None
+    ) -> None:
         user = self._find_user(db, user_id)
-        user.set_first_name(name)
-        db.commit()
-
-    def set_age(self, db: Session, user_id: int, age: int) -> None:
-        user = self._find_user(db, user_id)
-        user.set_age(age)
+        user.update_profile(name, age)
         db.commit()
 
     def new_chat(

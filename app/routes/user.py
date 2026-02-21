@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
 from ..core.exceptions import NotFoundError
-from ..dependencies import get_current_user, get_philo_chat
+from ..dependencies import get_current_user, get_db, get_philo_chat
 from ..schemas.user import UserUpdateReq
 from ..services import PhiloChat
 
@@ -10,11 +11,12 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 @router.delete("/me", status_code=status.HTTP_200_OK)
 def delete_user(
-    username: str = Depends(get_current_user),
+    user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
     pc: PhiloChat = Depends(get_philo_chat),
 ):
     try:
-        pc.delete_account(username)
+        pc.delete_account(db, user_id)
         return {"message": "User deleted successfully"}
 
     except NotFoundError as e:
@@ -26,14 +28,12 @@ def delete_user(
 @router.patch("/me", status_code=status.HTTP_200_OK)
 def update_user(
     request: UserUpdateReq,
-    username: str = Depends(get_current_user),
+    user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
     pc: PhiloChat = Depends(get_philo_chat),
 ):
     try:
-        if request.name is not None:
-            pc.set_first_name(username, request.first_name)
-        if request.age is not None:
-            pc.set_age(username, request.age)
+        pc.update_profile(db, user_id, request.first_name, request.age)
 
         return {"message": "Updated user successfully"}
 

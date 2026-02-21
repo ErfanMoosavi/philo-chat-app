@@ -5,41 +5,45 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import DecodeError, InvalidSignatureError
 
-from .config import settings
+from .database import SessionLocal
 from .services import PhiloChat
 
-# Create a global instance of PhiloChat
-philo_chat = PhiloChat(
-    api_key=settings.api_key, base_url=settings.base_url, model_name=settings.llm_model
-)
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+philo_chat = PhiloChat()
 
 
 def get_philo_chat() -> PhiloChat:
     return philo_chat
 
 
-# Security setup
 security = HTTPBearer()
 
 
-# Every private action receives username from this function
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-) -> str:
+) -> int:
     token = credentials.credentials
     try:
         decoded = jwt.decode(token, "test_key", algorithms=["HS256"])
-        username = decoded.get("username")
+        user_id = decoded.get("id")
 
         if token in blacklisted_tokens:
             raise HTTPException(
                 status.HTTP_401_UNAUTHORIZED,
                 "Authentication failed: token has been revoked",
             )
-        if not username:
+        if not user_id:
             raise HTTPException(
                 status.HTTP_401_UNAUTHORIZED,
-                "Authetication failed, username not in payload",
+                "Authetication failed, user_id not in payload",
             )
         if decoded.get("type") != "access":
             raise HTTPException(
@@ -51,7 +55,7 @@ def get_current_user(
             raise HTTPException(
                 status.HTTP_401_UNAUTHORIZED, "Authetication failed, token expired"
             )
-        return username
+        return user_id
 
     except InvalidSignatureError:
         raise HTTPException(

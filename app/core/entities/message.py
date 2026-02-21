@@ -1,15 +1,17 @@
-from datetime import datetime
-from enum import Enum
+from sqlalchemy import Column, ForeignKey, Integer, String, Time
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.sql import func
+
+Base = declarative_base()
 
 
-class MessageRole(Enum):
-    USER = "user"
-    ASSISTANT = "assistant"
+class Message(Base):
+    __tablename__ = "messages"
 
+    id = Column(Integer, primary_key=True)
+    chat_id = Column(Integer, ForeignKey("chats"))
 
-class Message:
-    def __init__(self, role: MessageRole, author: str, content: str) -> None:
-        self.role = role
-        self.author = author
-        self.content = content
-        self.time = datetime.now().strftime("%H:%M")
+    role = Column(String)
+    author = Column(String)
+    content = Column(String)
+    time = Column(Time, default=func.now)

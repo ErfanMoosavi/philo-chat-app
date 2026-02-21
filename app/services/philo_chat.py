@@ -1,118 +1,94 @@
-import json
-from pathlib import Path
+from passlib.context import CryptContext
+from sqlalchemy.orm import Session
 
-from ..core.entities import Chat, ChatCompleter, Message, Philosopher, User
+from ..core.entities import Chat, Philosopher, User
 from ..core.exceptions import BadRequestError, NotFoundError, PermissionDeniedError
+
+# Create hash object
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class PhiloChat:
-    def __init__(self, base_url: str, api_key: str, model_name: str) -> None:
-        self.chat_completer = ChatCompleter(base_url, api_key, model_name)
-        self.users: dict[str, User] = {}
-        self.philosophers: dict[int, Philosopher] = self._load_philosophers()
-
-    def signup(self, username: str, password: str) -> None:
-        if self._find_user(username):
+    def signup(self, db: Session, username: str, password: str) -> None:
+        existing_user = db.query(User).filter(User.username == username).first()
+        if existing_user:
             raise BadRequestError(f"Username '{username}' already taken")
 
-        new_user = User(username, password)
-        self.users[username] = new_user
+        password_hash = pwd_context.hash(password)
+        new_user = User(username=username, password_hash=password_hash)
 
-    def login(self, username: str, password: str) -> None:
-        user = self._find_user(username)
+        db.add(new_user)
+        db.commit()
 
+    def login(self, db: Session, username: str, password: str) -> None:
+        user = db.query(User).filter(User.username == username).first()
         if not user:
             raise NotFoundError(f"Username '{username}' not found")
-        elif not user.verify_password(password):
+
+        if not pwd_context.verify(password, user.password_hash):
             raise PermissionDeniedError("Password is incorrect")
 
-    def logout(self, username: str) -> None:
-        user = self._find_user(username)
-        if not user:
-            raise NotFoundError(f"Username '{username}' not found")
+    def delete_account(self, db: Session, user_id: int) -> None:
+        user = self._find_user(db, user_id)
+        db.delete(user)
+        db.commit()
 
-    def delete_account(self, username: str) -> None:
-        if username not in self.users:
-            raise NotFoundError(f"Username '{username}' not found")
+    def set_first_name(self, db: Session, user_id: int, name: str) -> None:
+        user = self._find_user(db, user_id)
+        user.set_first_name(name)
+        db.commit()
 
-        del self.users[username]
-
-    def set_first_name(self, username: str, first_name: str) -> None:
-        user = self._find_user(username)
-        if not user:
-            raise NotFoundError(f"Username '{username}' not found")
-
-        user.set_first_name(first_name)
-
-    def set_age(self, username: str, age: int) -> None:
-        user = self._find_user(username)
-        if not user:
-            raise NotFoundError(f"Username '{username}' not found")
-
+    def set_age(self, db: Session, user_id: int, age: int) -> None:
+        user = self._find_user(db, user_id)
         user.set_age(age)
+        db.commit()
 
-    def new_chat(self, username: str, chat_name: str, philosopher_id: int) -> None:
-        user = self._find_user(username)
-        philosopher = self._find_philosopher(philosopher_id)
-
-        if not user:
-            raise NotFoundError(f"Username '{username}' not found")
-        if not philosopher:
-            raise NotFoundError(f"Philosopher with id '{philosopher_id}' not found")
-
+    def new_chat(
+        self, db: Session, user_id: int, chat_name: str, philosopher_id: int
+    ) -> None:
+        user = self._find_user(db, user_id)
+        philosopher = self._find_philosopher(db, philosopher_id)
         user.new_chat(chat_name, philosopher)
+        db.commit()
 
     def rename_chat(
-        self, username: str, old_chat_name: str, new_chat_name: str
+        self, db: Session, user_id: int, old_chat_name: str, new_chat_name: str
     ) -> None:
-        user = self._find_user(username)
-        if not user:
-            raise NotFoundError(f"Username '{username}' not found")
-
+        user = self._find_user(db, user_id)
         user.rename_chat(old_chat_name, new_chat_name)
+        db.commit()
 
-    def get_chat_list(self, username: str) -> list[Chat]:
-        user = self._find_user(username)
-        if not user:
-            raise NotFoundError(f"Username '{username}' not found")
+    def get_chats(self, db: Session, user_id: int) -> list[Chat]:
+        user = self._find_user(db, user_id)
+        return user.chats
 
-        return user.get_chat_list()
-
-    def delete_chat(self, username: str, chat_name: str) -> None:
-        user = self._find_user(username)
-        if not user:
-            raise NotFoundError(f"Username '{username}' not found")
-
-        return user.delete_chat(chat_name)
+    def delete_chat(self, db: Session, user_id: int, chat_name: str) -> None:
+        user = self._find_user(db, user_id)
+        user.delete_chat(chat_name)
+        db.commit()
 
     def complete_chat(
-        self, username: str, chat_name: str, input_text: str
-    ) -> tuple[Message, Message]:
-        user = self._find_user(username)
-        if not user:
-            raise NotFoundError(f"Username '{username}' not found")
+        self, db: Session, user_id: int, chat_name: str, input_text: str
+    ) -> None:
+        user = self._find_user(db, user_id)
+        user.complete_chat(chat_name, input_text)
+        db.commit()
 
-        return user.complete_chat(chat_name, input_text, self.chat_completer)
+    def get_philosophers(self, db: Session) -> list[Philosopher]:
+        philosophers = db.query(Philosopher).all()
+        if not philosophers:
+            return []
 
-    def get_philosophers_list(self) -> list[Philosopher]:
-        if not self.philosophers:
-            raise NotFoundError("No philosophers found")
-
-        return list(self.philosophers.values())
-
-    def _find_user(self, username: str) -> User | None:
-        return self.users.get(username)
-
-    def _find_philosopher(self, philosopher_id: int) -> Philosopher | None:
-        return self.philosophers.get(philosopher_id)
-
-    def _load_philosophers(self) -> dict[int, Philosopher]:
-        data_dir = Path(__file__).parent.parent / "resources/philosophers.json"
-
-        with open(data_dir, "r", encoding="utf-8") as f:
-            raw_philosophers = json.load(f)
-
-        philosophers = {}
-        for p in raw_philosophers:
-            philosophers[p["id"]] = Philosopher(p["id"], p["name"])
         return philosophers
+
+    def _find_user(self, db: Session, user_id: int) -> User:
+        user = db.get(User, user_id)
+        if not user:
+            raise NotFoundError(f"User with id '{user_id}' not found")
+        return user
+
+    def _find_philosopher(self, db: Session, philosopher_id: int) -> Philosopher:
+        philosopher = db.get(Philosopher, philosopher_id)
+        if not philosopher:
+            raise NotFoundError(f"Philosopher with id '{philosopher_id}' not found")
+        return philosopher

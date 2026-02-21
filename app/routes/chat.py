@@ -48,7 +48,7 @@ def get_chats(
     pc: PhiloChat = Depends(get_philo_chat),
 ):
     try:
-        chat_list = pc.get_chat_list(username)
+        chat_list = pc.get_chats(username)
         return chat_list
 
     except NotFoundError:
@@ -82,10 +82,6 @@ def create_message(
 ):
     try:
         ai_msg, user_msg = pc.complete_chat(username, chat_name, data.input_text)
-        return {
-            "user_message": user_msg.content,
-            "philosopher_response": ai_msg.content,
-        }
 
     except BadRequestError as e:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=str(e))

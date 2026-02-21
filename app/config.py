@@ -19,9 +19,12 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 7
 
     # LLM API settings
-    base_url: str = "https://api.openai.com/v1"
+    base_url: str
     api_key: str
-    llm_model: str = "google/gemma-3n-e4b-it"
+    llm_model: str
+
+    # DB settings
+    sqlalchemy_db_url: str
 
     class Config:
         env_file = ".env"

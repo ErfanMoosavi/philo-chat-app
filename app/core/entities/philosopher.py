@@ -1,4 +1,13 @@
+from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+
+
 class Philosopher:
-    def __init__(self, id: int, name: str) -> None:
-        self.id = id
-        self.name = name
+    __tablename__ = "philosophers"
+
+    id = Column(Integer, primary_kay=True)
+    chat_id = Column(Integer, ForeignKey("chats"))
+
+    name = Column(String)

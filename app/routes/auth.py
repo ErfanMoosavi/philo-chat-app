@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from ..core.exceptions import BadRequestError, NotFoundError, PermissionDeniedError
+from ..core.models import User
 from ..core.secutiry import (
     decode_refresh_token,
     generate_access_token,
@@ -39,8 +40,10 @@ def login(
     try:
         pc.login(db, request.username, request.password)
 
-        access_token = generate_access_token(request.username)
-        refresh_token = generate_refresh_token(request.username)
+        user = db.query(User).filter(User.username == request.username).first()
+
+        access_token = generate_access_token(user.id)
+        refresh_token = generate_refresh_token(user.id)
 
         return {
             "message": "Logged in successfully",

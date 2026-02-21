@@ -5,7 +5,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from alembic import context
-from app.core.models import Chat, Message, Philosopher, User
+from app.core.models import Chat, Message, User
 from app.database import Base
 from sqlalchemy import engine_from_config, pool
 

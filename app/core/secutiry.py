@@ -7,22 +7,22 @@ from jwt import DecodeError, InvalidSignatureError
 from ..config import settings
 
 
-def generate_access_token(username: str) -> str:
+def generate_access_token(user_id: int) -> str:
     now = datetime.now(timezone.utc)
     payload = {
         "type": "access",
-        "username": username,
+        "user_id": user_id,
         "iat": now,
         "exp": now + timedelta(minutes=settings.access_token_expire_minutes),
     }
     return jwt.encode(payload, settings.secret_key)
 
 
-def generate_refresh_token(username: str) -> str:
+def generate_refresh_token(user_id: int) -> str:
     now = datetime.now(timezone.utc)
     payload = {
         "type": "refresh",
-        "username": username,
+        "user_id": user_id,
         "iat": now,
         "exp": now + timedelta(days=settings.refresh_token_expire_days),
     }
@@ -34,12 +34,12 @@ def decode_refresh_token(refresh_token: str):
         decoded = jwt.decode(
             refresh_token, settings.secret_key, algorithms=[settings.algorithm]
         )
-        username = decoded.get("username")
+        user_id = decoded.get("user_id")
 
-        if not username:
+        if not user_id:
             raise HTTPException(
                 status.HTTP_401_UNAUTHORIZED,
-                "Authetication failed, username not in payload",
+                "Authetication failed, user_id not in payload",
             )
         if decoded.get("type") != "refresh":
             raise HTTPException(
@@ -51,7 +51,7 @@ def decode_refresh_token(refresh_token: str):
             raise HTTPException(
                 status.HTTP_401_UNAUTHORIZED, "Authetication failed, token expired"
             )
-        return username
+        return user_id
 
     except InvalidSignatureError:
         raise HTTPException(

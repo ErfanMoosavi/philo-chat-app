@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from ..core.exceptions import BadRequestError, NotFoundError
 from ..dependencies import get_current_user, get_db, get_philo_chat
-from ..schemas.chat import ChatCreateReq, ChatNameUpdateReq, MessageCreateReq
+from ..schemas.chat import ChatCreateReq, MessageCreateReq
 from ..services import PhiloChat
 
 router = APIRouter(prefix="/chats", tags=["chats"])
@@ -28,23 +28,6 @@ def create_chat(
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
 
-@router.patch("/{chat_name}", status_code=status.HTTP_200_OK)
-def rename_chat(
-    chat_name: str,
-    request: ChatNameUpdateReq,
-    user_id: int = Depends(get_current_user),
-    db: Session = Depends(get_db),
-    pc: PhiloChat = Depends(get_philo_chat),
-):
-    try:
-        pc.rename_chat(db, user_id, chat_name, request.new_chat_name)
-
-    except NotFoundError as e:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, str(e))
-    except BadRequestError as e:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e))
-
-
 @router.get("/", status_code=status.HTTP_200_OK)
 def get_chats(
     user_id: int = Depends(get_current_user),
@@ -61,15 +44,15 @@ def get_chats(
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
 
-@router.delete("/{chat_name}", status_code=status.HTTP_200_OK)
+@router.delete("/{chat_id}", status_code=status.HTTP_200_OK)
 def delete_chat(
-    chat_name: str,
+    chat_id: int,
     user_id: int = Depends(get_current_user),
     db: Session = Depends(get_db),
     pc: PhiloChat = Depends(get_philo_chat),
 ):
     try:
-        pc.delete_chat(db, user_id, chat_name)
+        pc.delete_chat(db, user_id, chat_id)
         return {"message": "Deleted chat successfully"}
 
     except NotFoundError as e:
@@ -78,16 +61,16 @@ def delete_chat(
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
 
-@router.post("/{chat_name}/messages", status_code=status.HTTP_201_CREATED)
+@router.post("/{chat_id}/messages", status_code=status.HTTP_201_CREATED)
 def create_message(
-    chat_name: str,
+    chat_id: int,
     data: MessageCreateReq,
     user_id: int = Depends(get_current_user),
     db: Session = Depends(get_db),
     pc: PhiloChat = Depends(get_philo_chat),
 ):
     try:
-        pc.complete_chat(db, user_id, chat_name, data.input_text)
+        pc.complete_chat(db, user_id, chat_id, data.input_text)
 
     except BadRequestError as e:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=str(e))

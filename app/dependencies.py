@@ -7,6 +7,7 @@ from jwt import DecodeError, InvalidSignatureError
 
 from .database import SessionLocal
 from .services import PhiloChat
+from .config import settings
 
 
 def get_db():
@@ -32,8 +33,8 @@ def get_current_user(
 ) -> int:
     token = credentials.credentials
     try:
-        decoded = jwt.decode(token, "test_key", algorithms=["HS256"])
-        user_id = decoded.get("id")
+        decoded = jwt.decode(token, settings.secret_key, algorithms=["HS256"])
+        user_id = decoded.get("user_id")
 
         if token in blacklisted_tokens:
             raise HTTPException(

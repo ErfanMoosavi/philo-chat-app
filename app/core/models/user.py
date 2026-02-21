@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session, relationship
 
 from ...database import Base
 from ..exceptions import NotFoundError
-from ..models import Chat, Philosopher
+from ..models import Chat
 
 NAME_NOT_PROVIDED = "name_not_provided"
 AGE_NOT_PROVIDED = -1
@@ -26,35 +26,22 @@ class User(Base):
         if age:
             self.first_name = age
 
-    def new_chat(self, chat_name: str, philosopher: Philosopher) -> None:
+    def new_chat(self, chat_name: str, philosopher: str) -> None:
         new_chat = Chat(user_id=self.id, name=chat_name, philosopher=philosopher)
         self.chats.append(new_chat)
-
-    def rename_chat(self, old_chat_name: str, new_chat_name: str) -> None:
-        old_chat = self._find_chat(old_chat_name)
-        if not old_chat:
-            raise NotFoundError(f"Chat '{old_chat_name}' not found")
-
-        old_chat.rename_chat(new_chat_name)
 
     def get_chats(self) -> list[Chat]:
         return self.chats
 
-    def delete_chat(self, chat_name: str) -> None:
-        chat = self._find_chat(chat_name)
-        if not chat:
-            raise NotFoundError(f"Chat '{chat_name}' not found")
-
+    def delete_chat(self, db: Session, chat_id: int) -> None:
+        chat = self._find_chat(db, chat_id)
         self.chats.remove(chat)
 
-    def complete_chat(self, chat_name: str, input_text: str) -> None:
-        chat = self._find_chat(chat_name)
-        if not chat:
-            raise NotFoundError(f"Chat '{chat_name}' not found")
-
+    def complete_chat(self, db: Session, chat_id: int, input_text: str) -> None:
+        chat = self._find_chat(db, chat_id)
         chat.complete_chat(input_text, self.username, self.first_name, self.age)
 
-    def _find_chat(self, db: Session, chat_id: str) -> Chat | None:
+    def _find_chat(self, db: Session, chat_id: str) -> Chat:
         chat = db.get(Chat, chat_id)
         if not chat:
             raise NotFoundError(f"Chat with id '{chat_id}' not found")

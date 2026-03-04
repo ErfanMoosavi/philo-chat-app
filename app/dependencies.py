@@ -5,9 +5,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import DecodeError, InvalidSignatureError
 
+from .config import settings
 from .database import SessionLocal
 from .services import PhiloChat
-from .config import settings
 
 
 def get_db():
@@ -70,7 +70,6 @@ def get_current_user(
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, str(e))
 
 
-# Set of blacklisted tokens
 blacklisted_tokens: set[str] = set()
 
 

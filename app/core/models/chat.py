@@ -2,7 +2,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from ...config import settings
-from ...database import Base
+from ...db import Base
 from ..utils import load_prompt, run_completion
 from .message import Message
 

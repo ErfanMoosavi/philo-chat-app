@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import Session, relationship
 
-from ...database import Base
+from ...db import Base
 from ..exceptions import NotFoundError
 from ..models import Chat
 

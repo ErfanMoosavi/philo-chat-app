@@ -6,8 +6,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from alembic import context
 from app.core.models import Chat, Message, User
-from app.database import Base
 from sqlalchemy import engine_from_config, pool
+
+from my_projects.philo_chat_app.app.db import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

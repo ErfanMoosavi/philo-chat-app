@@ -6,7 +6,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import DecodeError, InvalidSignatureError
 
 from .config import settings
-from .database import SessionLocal
+from .db import SessionLocal
 from .services import PhiloChat
 
 

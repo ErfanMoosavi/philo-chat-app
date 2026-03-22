@@ -9,6 +9,10 @@ from .config import settings
 from .db import SessionLocal
 from .services import PhiloChat
 
+philo_chat = PhiloChat()
+security = HTTPBearer()
+blacklisted_tokens: set[str] = set()
+
 
 def get_db():
     db = SessionLocal()
@@ -18,14 +22,8 @@ def get_db():
         db.close()
 
 
-philo_chat = PhiloChat()
-
-
 def get_philo_chat() -> PhiloChat:
     return philo_chat
-
-
-security = HTTPBearer()
 
 
 def get_current_user(
@@ -68,9 +66,6 @@ def get_current_user(
         )
     except Exception as e:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, str(e))
-
-
-blacklisted_tokens: set[str] = set()
 
 
 # Logout receives the token from this function to add it to the black list
